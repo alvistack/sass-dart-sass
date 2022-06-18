@@ -1202,16 +1202,16 @@ class _EvaluateVisitor
             allowParent: false));
 
     for (var complex in list.components) {
-      if (complex.components.length != 1 ||
-          complex.components.first is! CompoundSelector) {
+      var compound = complex.singleCompound;
+      if (compound == null) {
         // If the selector was a compound selector but not a simple
         // selector, emit a more explicit error.
         throw SassFormatException(
             "complex selectors may not be extended.", targetText.span);
       }
 
-      var compound = complex.components.first as CompoundSelector;
-      if (compound.components.length != 1) {
+      var simple = compound.singleSimple;
+      if (simple == null) {
         throw SassFormatException(
             "compound selectors may no longer be extended.\n"
             "Consider `@extend ${compound.components.join(', ')}` instead.\n"
@@ -1220,7 +1220,7 @@ class _EvaluateVisitor
       }
 
       _extensionStore.addExtension(
-          styleRule.selector, compound.components.first, node, _mediaQueries);
+          styleRule.selector, simple, node, _mediaQueries);
     }
 
     return null;
@@ -1868,6 +1868,21 @@ class _EvaluateVisitor
         () => parsedSelector.resolveParentSelectors(
             _styleRuleIgnoringAtRoot?.originalSelector,
             implicitParent: !_atRootExcludingStyleRule));
+
+    for (var complex in parsedSelector.components) {
+      if (!complex.isBogus) continue;
+      _warn(
+          'The selector "$complex" is invalid CSS' +
+              (complex.isBogusOtherThanLeadingCombinator
+                  ? ' and will be omitted from the generated CSS'
+                  : '') +
+              '.\n'
+                  'This will be an error in Dart Sass 2.0.0.\n'
+                  '\n'
+                  'More info: https://sass-lang.com/d/bogus-combinators',
+          node.selector.span,
+          deprecation: true);
+    }
 
     var selector = _extensionStore.addSelector(
         parsedSelector, node.selector.span, _mediaQueries);

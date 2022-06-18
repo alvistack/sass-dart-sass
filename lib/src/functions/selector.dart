@@ -67,17 +67,20 @@ final _append = _function("append", r"$selectors...", (arguments) {
       .map((selector) => selector.assertSelector())
       .reduce((parent, child) {
     return SelectorList(child.components.map((complex) {
-      var compound = complex.components.first;
-      if (compound is CompoundSelector) {
-        var newCompound = _prependParent(compound);
-        if (newCompound == null) {
-          throw SassScriptException("Can't append $complex to $parent.");
-        }
-
-        return ComplexSelector([newCompound, ...complex.components.skip(1)]);
-      } else {
+      if (complex.leadingCombinators.isNotEmpty) {
         throw SassScriptException("Can't append $complex to $parent.");
       }
+
+      var component = complex.components.first;
+      var newCompound = _prependParent(component.selector);
+      if (newCompound == null) {
+        throw SassScriptException("Can't append $complex to $parent.");
+      }
+
+      return ComplexSelector(const [], [
+        ComplexSelectorComponent(newCompound, component.combinators),
+        ...complex.components.skip(1)
+      ]);
     })).resolveParentSelectors(parent);
   }).asSassList;
 });

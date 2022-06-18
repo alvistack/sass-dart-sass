@@ -1175,26 +1175,25 @@ class _SerializeVisitor
   }
 
   void visitComplexSelector(ComplexSelector complex) {
-    ComplexSelectorComponent? lastComponent;
-    for (var component in complex.components) {
-      if (lastComponent != null &&
-          !_omitSpacesAround(lastComponent) &&
-          !_omitSpacesAround(component)) {
-        _buffer.write(" ");
+    _writeCombinators(complex.leadingCombinators);
+    if (complex.leadingCombinators.isNotEmpty) _writeOptionalSpace();
+
+    for (var i = 0; i < complex.components.length; i++) {
+      var component = complex.components[i];
+      visitCompoundSelector(component.selector);
+      if (component.combinators.isNotEmpty) _writeOptionalSpace();
+      _writeCombinators(component.combinators);
+      if (i != complex.components.length - 1 &&
+          (!_isCompressed || component.combinators.isEmpty)) {
+        _buffer.writeCharCode($space);
       }
-      if (component is CompoundSelector) {
-        visitCompoundSelector(component);
-      } else {
-        _buffer.write(component);
-      }
-      lastComponent = component;
     }
   }
 
-  /// When [_style] is [OutputStyle.compressed], omit spaces around combinators.
-  bool _omitSpacesAround(ComplexSelectorComponent component) {
-    return _isCompressed && component is Combinator;
-  }
+  /// Writes [combinators] to [_buffer], with spaces in between in expanded
+  /// mode.
+  void _writeCombinators(List<Combinator> combinators) =>
+      _writeBetween(combinators, _isCompressed ? '' : ' ', _buffer.write);
 
   void visitCompoundSelector(CompoundSelector compound) {
     var start = _buffer.length;

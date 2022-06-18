@@ -2,6 +2,8 @@
 // MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import 'package:meta/meta.dart';
+
 import '../../extend/functions.dart';
 import '../../logger.dart';
 import '../../parse/selector.dart';
@@ -13,7 +15,7 @@ import '../selector.dart';
 ///
 /// A compound selector is composed of [SimpleSelector]s. It matches an element
 /// that matches all of the component simple selectors.
-class CompoundSelector extends Selector implements ComplexSelectorComponent {
+class CompoundSelector extends Selector {
   /// The components of this selector.
   ///
   /// This is never empty.
@@ -41,7 +43,17 @@ class CompoundSelector extends Selector implements ComplexSelectorComponent {
 
   int? _maxSpecificity;
 
+  /// If this compound selector is composed of a single simple selector, returns
+  /// it.
+  ///
+  /// Otherwise, returns null.
+  @internal
+  SimpleSelector? get singleSimple =>
+      components.length == 1 ? components.first : null;
+
   bool get isInvisible => components.any((component) => component.isInvisible);
+
+  bool get isBogus => components.any((component) => component.isBogus);
 
   CompoundSelector(Iterable<SimpleSelector> components)
       : components = List.unmodifiable(components) {

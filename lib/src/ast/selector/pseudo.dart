@@ -94,6 +94,16 @@ class PseudoSelector extends SimpleSelector {
     return name != 'not' && selector.isInvisible;
   }
 
+  bool get isBogus {
+    var selector = this.selector;
+    if (selector == null) return false;
+
+    // The CSS spec specifically allows leading combinators in `:has()`.
+    return name == 'has'
+        ? selector.isBogusOtherThanLeadingCombinator
+        : selector.isBogus;
+  }
+
   PseudoSelector(this.name,
       {bool element = false, this.argument, this.selector})
       : isClass = !element && !_isFakePseudoElement(name),
