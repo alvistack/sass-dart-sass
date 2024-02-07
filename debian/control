@@ -2,7 +2,7 @@ Source: sass
 Section: javascript
 Priority: optional
 Standards-Version: 4.5.0
-Maintainer: Wong Hoi Sing Edison <hswong3i@gmail.com>
+Maintainer: Wong Hoi Sing Edison <hswong3i@pantarei-design.com>
 Homepage: https://github.com/sass/dart-sass/tags
 Vcs-Browser: https://github.com/alvistack/sass-dart-sass
 Vcs-Git: https://github.com/alvistack/sass-dart-sass.git
