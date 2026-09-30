@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+SHELL := /bin/bash
+
+override_dh_auto_install:
+	install -Dpm 755 -d debian/tmp/usr/bin
+	install -Dpm 755 -d debian/tmp/usr/lib/node_modules
+	cp -rfT node_modules debian/tmp/usr/lib/node_modules
+	pushd debian/tmp/usr/bin && \
+		ln -fs /usr/lib/node_modules/sass/sass.js sass && \
+		popd
+	chmod a+x debian/tmp/usr/lib/node_modules/sass/sass.js
+	fdupes -qnrps debian/tmp/usr/lib/node_modules
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod a+x debian/sass/usr/lib/node_modules/sass/sass.js
+
+override_dh_auto_test:
+
+override_dh_auto_clean:
+
+%:
+	dh $@
