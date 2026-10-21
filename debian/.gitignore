@@ -2,5 +2,5 @@
 *debhelper*
 .debhelper
 files
-node-sass
+sass
 tmp
